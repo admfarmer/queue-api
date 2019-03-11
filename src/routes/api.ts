@@ -3,6 +3,7 @@
 import * as Knex from 'knex';
 import * as fastify from 'fastify';
 import * as moment from 'moment';
+import * as HttpStatus from 'http-status-codes';
 const request = require('request')
 
 import { QueueModel } from '../models/queue';
@@ -14,7 +15,6 @@ const queueModel = new QueueModel();
 const servicePointModel = new ServicePointModel();
 const priorityModel = new PriorityModel();
 
-import * as HttpStatus from 'http-status-codes';
 const tokenModel = new TokenModel();
 
 const router = (fastify, { }, next) => {
@@ -248,10 +248,11 @@ const router = (fastify, { }, next) => {
             servicePointId: servicePointId
           }
 
+          reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK });
+
           fastify.mqttClient.publish(globalTopic, 'update visit', { qos: 0, retain: false });
           fastify.mqttClient.publish(servicePointTopic, JSON.stringify(payload), { qos: 0, retain: false });
 
-          reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK });
 
         } else {
           reply.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -274,6 +275,7 @@ const router = (fastify, { }, next) => {
     }
   })
 
+  // get patient current queue
   fastify.get('/queue', async (req: fastify.Request, reply: fastify.Reply) => {
     const token = req.query.token;
     const hn = req.query.hn;
@@ -295,6 +297,7 @@ const router = (fastify, { }, next) => {
       reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: 'ไม่พบ TOKEN' })
     }
   });
+
   next();
 }
 

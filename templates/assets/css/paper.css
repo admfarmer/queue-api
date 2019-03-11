@@ -1,0 +1,9 @@
+@media print {
+    body.QUEUE { width: 400px }
+    @page {
+      size: 80mm 50mm; /* landscape */
+      /* you can also specify margins here: */
+      margin: 2mm;
+      margin-right: 2mm; /* for compatibility with both A4 and Letter */
+    }
+  }

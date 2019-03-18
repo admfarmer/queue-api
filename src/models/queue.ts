@@ -756,7 +756,7 @@ export class QueueModel {
       .innerJoin('q4u_service_points as sp', 'sp.service_point_id', 'q.service_point_id')
       .leftJoin('q4u_priorities as p', 'p.priority_id', 'q.priority_id')
       .leftJoin('q4u_service_rooms as r', 'r.room_id', 'qg.room_id')
-      .where('q.queue_id', queueIds);
+      .whereIn('q.queue_id', queueIds);
   }
 
   apiGetCurrentQueueByHN(db: knex, hn: any, servicePointId: any) {

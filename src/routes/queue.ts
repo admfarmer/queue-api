@@ -1111,9 +1111,11 @@ const router = (fastify, { }, next) => {
       }
 
       // Send notify to H4U Server
-      // 
+      let queueIds: any = [];
+      queueIds.push(queueId)
+
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
-        const rsQueue: any = await queueModel.getResponseQueueInfo(db, queueId);
+        const rsQueue: any = await queueModel.getResponseQueueInfo(db, queueIds);
         // console.log(rsQueue[0]);
         if (rsQueue[0].length) {
           const data = rsQueue[0][0];

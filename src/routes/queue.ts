@@ -900,8 +900,22 @@ const router = (fastify, { }, next) => {
       await queueModel.updateCurrentQueue(db, servicePointId, dateServ, queueId, roomId);
 
       const queueDetail = await queueModel.getDuplicatedQueueInfo(db, queueId) // get queue_running
-      await queueModel.removeCurrentQueueGroup(db, servicePointId, dateServ, queueId);
-      await queueModel.updateCurrentQueueGroup(db, servicePointId, dateServ, queueId, roomId, queueDetail[0].queue_running || 0);
+      if (queueDetail.length) {
+        var queueRunning = queueDetail[0].queue_running || 0;
+
+        var queueData = [];
+
+        queueData.push({
+          service_point_id: servicePointId,
+          date_serv: dateServ,
+          queue_id: queueId,
+          room_id: roomId,
+          queue_running: queueRunning
+        });
+
+        await queueModel.removeCurrentQueueGroup(db, servicePointId, dateServ, queueId);
+        await queueModel.updateCurrentQueueGroups(db, queueData);
+      }
 
       await queueModel.markUnPending(db, queueId);
       if (isCompleted === 'N') {
@@ -918,6 +932,7 @@ const router = (fastify, { }, next) => {
       if (rsQueue[0].length) {
         departmentId = rsQueue[0][0].department_id;
       }
+
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
         if (rsQueue[0].length) {
           const data = rsQueue[0][0];
@@ -1091,15 +1106,27 @@ const router = (fastify, { }, next) => {
     const queueNumber = req.body.queueNumber;
     const isCompleted = req.body.isCompleted;
     const queueRunning = req.body.queueRunning;
+
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
 
+      var queueData = [];
+
+      queueData.push({
+        service_point_id: servicePointId,
+        date_serv: dateServ,
+        queue_id: queueId,
+        room_id: roomId,
+        queue_running: queueRunning
+      });
+
       await queueModel.removeCurrentQueueGroup(db, servicePointId, dateServ, queueId);
-      await queueModel.updateCurrentQueueGroup(db, servicePointId, dateServ, queueId, roomId, queueRunning);
+      await queueModel.updateCurrentQueueGroups(db, queueData);
 
       const rsServicePoint: any = await servicePointModel.getPrefix(db, servicePointId);
 
       const groupCompare: any = rsServicePoint[0].group_compare || 'N';
+
       if (groupCompare === 'Y') {
         await queueModel.setQueueRoomNumber(db, queueId, roomId);
         await queueModel.markUnPending(db, queueId);
@@ -1188,10 +1215,10 @@ const router = (fastify, { }, next) => {
         await queueModel.markCompleted(db, queueId);
       }
 
-      let queueIds: any = [];
-      queueIds.push(queueId)
+      var _queueIds = [];
+      _queueIds.push(queueId);
 
-      const rsQueue: any = await queueModel.getResponseQueueInfo(db, queueIds);
+      const rsQueue: any = await queueModel.getResponseQueueInfo(db, _queueIds);
       // Send notify to H4U Server
       // 
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
@@ -1293,9 +1320,19 @@ const router = (fastify, { }, next) => {
     const dateServ = moment().format('YYYY-MM-DD');
 
     try {
-      // await queueModel.setQueueRoomNumber(db, queueId, roomId);
+
+      var queueData = [];
+
+      queueData.push({
+        service_point_id: servicePointId,
+        date_serv: dateServ,
+        queue_id: queueId,
+        room_id: roomId,
+        queue_running: queueRunning
+      });
+
       await queueModel.removeCurrentQueueGroup(db, servicePointId, dateServ, queueId);
-      await queueModel.updateCurrentQueueGroup(db, servicePointId, dateServ, queueId, roomId, queueRunning);
+      await queueModel.updateCurrentQueueGroups(db, queueData);
 
       const groupTopic = process.env.GROUP_TOPIC + '/' + servicePointId;
 

@@ -528,6 +528,24 @@ const router = (fastify, { }, next) => {
     }
   })
 
+  fastify.get('/department/history/:departmentId', { beforeHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+
+    const departmentId = req.params.departmentId;
+    const limit = +req.query.limit || 20;
+    const offset = +req.query.offset || 0;
+
+    try {
+      const dateServ: any = moment().format('YYYY-MM-DD');
+
+      const rs: any = await queueModel.getQueueHistoryByDepartmentId(db, dateServ, departmentId, limit, offset);
+      const rsTotal: any = await queueModel.getQueueHistoryByDepartmentIdTotal(db, dateServ, departmentId);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs, total: rsTotal[0].total })
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  })
+
   fastify.get('/department/search/:departmentId', { beforeHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const departmentId = req.params.departmentId;
@@ -918,6 +936,7 @@ const router = (fastify, { }, next) => {
       }
 
       await queueModel.markUnPending(db, queueId);
+
       if (isCompleted === 'N') {
         await queueModel.markInterview(db, queueId);
       } else {
@@ -934,8 +953,8 @@ const router = (fastify, { }, next) => {
       }
 
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
-        if (rsQueue[0].length) {
-          const data = rsQueue[0][0];
+        if (rsQueue.length) {
+          const data = rsQueue[0];
           const queueWithoutPrefix = +data.queue_running;
           const params = {
             hosid: data.hosid,
@@ -964,8 +983,8 @@ const router = (fastify, { }, next) => {
       const groupTopic = process.env.GROUP_TOPIC + '/' + servicePointId;
       const departmentTopic = process.env.DEPARTMENT_TOPIC + '/' + departmentId;
       const globalTopic = process.env.QUEUE_CENTER_TOPIC;
-      console.log(departmentTopic);
 
+      console.log('DEPARTMENT TOPIC = ' + departmentTopic);
 
       const payload = {
         queueNumber: queueNumber,
@@ -1058,8 +1077,6 @@ const router = (fastify, { }, next) => {
               dateServ: moment(data.date_serv).format('YYYYMMDD'),
             };
 
-            console.log(params);
-
             request.post(process.env.Q4U_NOTIFY_URL, {
               form: params
             }, (err: any, res: any, body: any) => {
@@ -1144,8 +1161,8 @@ const router = (fastify, { }, next) => {
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
         const rsQueue: any = await queueModel.getResponseQueueInfo(db, queueIds);
         // console.log(rsQueue[0]);
-        if (rsQueue[0].length) {
-          const data = rsQueue[0][0];
+        if (rsQueue.length) {
+          const data = rsQueue[0];
           const queueWithoutPrefix = +data.queue_running;
 
           const params = {
@@ -1209,6 +1226,7 @@ const router = (fastify, { }, next) => {
       await queueModel.removeCurrentQueue(db, servicePointId, dateServ, queueId);
       await queueModel.updateCurrentQueue(db, servicePointId, dateServ, queueId, roomId);
       await queueModel.markUnPending(db, queueId);
+
       if (isCompleted === 'N') {
         await queueModel.markInterview(db, queueId);
       } else {
@@ -1224,8 +1242,8 @@ const router = (fastify, { }, next) => {
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
 
         // console.log(rsQueue[0]);
-        if (rsQueue[0].length) {
-          const data = rsQueue[0][0];
+        if (rsQueue.length) {
+          const data = rsQueue[0];
           const queueWithoutPrefix = +data.queue_running;
 
           const params = {

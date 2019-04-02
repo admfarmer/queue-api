@@ -34,13 +34,14 @@ const router = (fastify, { }, next) => {
       GLOBAL_NOTIFY_TOPIC: process.env.GLOBAL_NOTIFY_TOPIC,
       QUEUE_CENTER_TOPIC: process.env.QUEUE_CENTER_TOPIC,
       SERVICE_POINT_TOPIC: process.env.SERVICE_POINT_TOPIC,
-      SPEAK_SERVICE_POINT: process.env.SPEAK_SERVICE_POINT,
       DEPARTMENT_TOPIC: process.env.DEPARTMENT_TOPIC,
       GROUP_TOPIC: process.env.GROUP_TOPIC,
       NOTIFY_USER: process.env.LOCAL_NOTIFY_USER,
       NOTIFY_PASSWORD: process.env.LOCAL_NOTIFY_PASSWORD,
       NOTIFY_SERVER: process.env.LOCAL_NOTIFY_SERVER,
-      NOTIFY_PORT: process.env.LOCAL_NOTIFY_HTTP_PORT
+      NOTIFY_PORT: process.env.LOCAL_NOTIFY_HTTP_PORT,
+      SPEAK_SERVICE_POINT: process.env.SPEAK_SERVICE_POINT,
+      USE_HIS_WAITING: process.env.USE_HIS_WAITING
     }, { expiresIn: '1y' });
 
     const data: any = {

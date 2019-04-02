@@ -544,7 +544,7 @@ export class QueueModel {
       .whereNot('q.mark_pending', 'Y')
       .whereNot('q.is_cancel', 'Y')
       // .groupByRaw('qd.date_serv, qd.service_point_id')
-      // .limit(10)
+      .limit(5)
       .orderBy('q.date_update', 'desc');
     return sql;
 
@@ -567,7 +567,7 @@ export class QueueModel {
       .where('q.is_completed', 'N')
       // .whereNot('q.mark_pending', 'Y')
       // .groupByRaw('qd.date_serv, qd.service_point_id')
-      // .limit(10)
+      .limit(5)
       .orderBy('q.date_update', 'ase');
   }
 

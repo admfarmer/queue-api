@@ -43,7 +43,8 @@ const router = (fastify, { }, next) => {
           NOTIFY_PASSWORD: process.env.LOCAL_NOTIFY_PASSWORD,
           NOTIFY_SERVER: process.env.LOCAL_NOTIFY_SERVER,
           NOTIFY_PORT: process.env.LOCAL_NOTIFY_HTTP_PORT,
-          SPEAK_SERVICE_POINT: process.env.SPEAK_SERVICE_POINT
+          SPEAK_SERVICE_POINT: process.env.SPEAK_SERVICE_POINT,
+          USE_HIS_WAITING: process.env.USE_HIS_WAITING
         }, { expiresIn: '1d' });
         reply.status(HttpStatus.OK).send({
           statusCode: HttpStatus.OK, token: token,

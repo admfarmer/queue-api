@@ -41,7 +41,8 @@ const router = (fastify, { }, next) => {
       NOTIFY_SERVER: process.env.LOCAL_NOTIFY_SERVER,
       NOTIFY_PORT: process.env.LOCAL_NOTIFY_HTTP_PORT,
       SPEAK_SERVICE_POINT: process.env.SPEAK_SERVICE_POINT,
-      USE_HIS_WAITING: process.env.USE_HIS_WAITING
+      USE_HIS_WAITING: process.env.USE_HIS_WAITING,
+      USE_HIS_DMH: process.env.USE_HIS_DMH
     }, { expiresIn: '1y' });
 
     const data: any = {

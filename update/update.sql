@@ -21,3 +21,6 @@ INSERT INTO `queue`.`q4u_sounds`(`sound_id`, `sound_name`, `sound_file`) VALUES 
 INSERT INTO `queue`.`q4u_sounds`(`sound_id`, `sound_name`, `sound_file`) VALUES (10, 'ที่โต๊ะ', 'table.mp3');
 INSERT INTO `queue`.`q4u_sounds`(`sound_id`, `sound_name`, `sound_file`) VALUES (11, 'ที่เคาเตอร์', 'couter.mp3');
 INSERT INTO `queue`.`q4u_sounds`(`sound_id`, `sound_name`, `sound_file`) VALUES (12, 'ที่ห้องตรวจ', 'doctor_room.mp3');
+
+-- #2019-04-09
+ALTER TABLE `queue`.`q4u_service_points` ADD COLUMN sound_speed decimal(3,2) NULL DEFAULT NULL

@@ -35,7 +35,7 @@ DBHIS_TYPE=mysql
 # HIS_TYPE เช่น hi, hosxp, homec, universal, mbase, ezhosp, dhos
 HIS_TYPE=hi
 
-QUEUE_DIGIT=4
+QUEUE_DIGIT=3
 USE_PRIORITY_PREFIX=N
 USE_PRIORITY_QUEUE_RUNNING=N
 ZERO_PADDING=Y

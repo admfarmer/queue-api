@@ -24,3 +24,6 @@ INSERT INTO `queue`.`q4u_sounds`(`sound_id`, `sound_name`, `sound_file`) VALUES 
 
 -- #2019-04-09
 ALTER TABLE `queue`.`q4u_service_points` ADD COLUMN sound_speed decimal(3,2) NULL DEFAULT NULL
+
+-- #2019-05-28
+ALTER TABLE q4u_users MODIFY COLUMN user_type enum('ADMIN','MEMBER','KIOSK');

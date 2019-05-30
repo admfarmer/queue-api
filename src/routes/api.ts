@@ -203,6 +203,7 @@ const router = (fastify, { }, next) => {
     const servicePointId = req.body.servicePointId;
     const roomId = req.body.roomId;
     const token = req.body.token;
+    const isInterview = req.body.isInterview || 'N';
 
     var departmentId = null;
 
@@ -277,7 +278,8 @@ const router = (fastify, { }, next) => {
                 queueNumber: queueNumber,
                 roomNumber: roomNumber,
                 servicePointId: servicePointId,
-                departmentId: departmentId
+                departmentId: departmentId,
+                isInterview: isInterview
               }
 
               if (rs.length) {
@@ -539,7 +541,7 @@ const router = (fastify, { }, next) => {
     const servicePointId = req.body.servicePointId;
     const roomId = req.body.roomId;
     const token = req.body.token;
-
+    const isInterview = req.body.isInterview || 'N';
     try {
       if (token) {
         if (hn && servicePointId && roomId) {
@@ -554,7 +556,6 @@ const router = (fastify, { }, next) => {
               const dateServ: any = moment().format('YYYY-MM-DD');
 
               const queueId = _queue.queue_id;
-              const roomNumber = _queue.room_number;
               const queueNumber = _queue.queue_number;
 
               await queueModel.setQueueRoomNumber(db, queueId, roomId);
@@ -565,8 +566,8 @@ const router = (fastify, { }, next) => {
               var _queueIds: any = [];
               _queueIds.push(queueId);
 
-              const rsQueue: any = await queueModel.getResponseQueueInfo(db, _queueIds);
-
+              const rsQueue: any = await queueModel.apiGetCurrentQueue(db, _queueIds);
+              const roomNumber = rsQueue[0].room_number;
               // Send notify to H4U Server
               if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
 
@@ -604,7 +605,8 @@ const router = (fastify, { }, next) => {
               const payload = {
                 queueNumber: queueNumber,
                 roomNumber: roomNumber,
-                servicePointId: servicePointId
+                servicePointId: servicePointId,
+                isInterview: isInterview
               }
               if (rs.length) {
                 reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, queueId: rs[0].queue_id, priorityId: rs[0].priority_id });

@@ -704,7 +704,7 @@ const router = (fastify, { }, next) => {
     }
   })
   //Ubonket10 
-  fastify.get('/create/:servicePointId', { beforeHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+  fastify.get('/create/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const servicePointId = req.params.servicePointId;
 

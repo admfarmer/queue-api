@@ -187,4 +187,80 @@ export class HiModel {
 
     return sql;
   }
+
+  getOvstInfo(db: knex, hn: any, vstdttm: any) {
+    return db('ovst')
+      .select('hn', 'vn', 'pttype', 'vstdttm', 'cln', db.raw('time(vstdttm) as vsttime'))
+      .where('hn', hn).andWhere('vstdttm', vstdttm)
+      .orderBy('vn', 'DESC')
+      .limit(1);
+  }
+
+  saveOvst(db: knex, datas: any) {
+    return db('ovst').insert(datas);
+  }
+
+  saveOvstOn(db: knex, datas: any, table: any) {
+    return db(table).insert(datas);
+  }
+
+  getPttypeInfo(db: knex, hn: any) {
+    return db('insure as i')
+      .select('p.pttype', 'p.namepttype', db.raw('date(i.datein) as datein'), db.raw('date(i.dateexp) as dateexp'), 'i.card_id')
+      .innerJoin('pttype as p', 'p.pttype', 'i.pttype')
+      .where('i.hn', hn)
+      .orderBy('i.id', 'DESC')
+      .limit(1);
+  }
+
+  async getShow(db: knex, table: any) {
+    let data = await db.raw(`SHOW TABLES FROM hi LIKE '${table}'`);
+    return data;
+  }
+
+  async getCreate(db: knex, table: any) {
+    let data = await db.raw(`
+    CREATE TABLE ${table} (
+    vn int(11) NOT NULL,
+    hn int(8) DEFAULT NULL,
+    fname char(25) DEFAULT NULL,
+    lname char(25) DEFAULT NULL,
+    male char(1) DEFAULT NULL,
+    age char(4) DEFAULT NULL,
+    allergy char(60) DEFAULT NULL,
+    pttype char(2) DEFAULT NULL,
+    vsttime int(4) NOT NULL,
+    dct char(5) DEFAULT NULL,
+    bw decimal(5,1) NOT NULL,
+    tt decimal(4,1) NOT NULL,
+    pr int(3) NOT NULL,
+    rr int(3) NOT NULL,
+    sbp int(3) NOT NULL,
+    dbp int(3) NOT NULL,
+    nrs int(1) NOT NULL,
+    dtr int(1) NOT NULL,
+    dtt int(1) NOT NULL,
+    lab int(1) NOT NULL,
+    xry int(1) NOT NULL,
+    er int(1) NOT NULL,
+    ors int(1) NOT NULL,
+    rec int(1) NOT NULL,
+    phm int(1) NOT NULL,
+    hpt int(1) NOT NULL,
+    phy int(1) NOT NULL,
+    drxtime int(4) NOT NULL,
+    fudate date DEFAULT '0000-00-00',
+    fus1 char(5) DEFAULT NULL,
+    fus2 char(5) DEFAULT NULL,
+    fus3 char(5) DEFAULT NULL,
+    fus4 char(5) DEFAULT NULL,
+    fus5 char(5) DEFAULT NULL,
+    ldrug tinyint(1) NOT NULL,
+    PRIMARY KEY (vn),
+    KEY vn (vn) USING BTREE,
+    KEY hn (hn) USING BTREE
+  ) ENGINE=InnoDB DEFAULT CHARSET=tis620;`);
+    return data;
+  }
+
 }

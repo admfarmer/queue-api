@@ -78,14 +78,13 @@ const router = (fastify, { }, next) => {
 
   });
 
-  fastify.post('/queue/prepare/print', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+  fastify.post('/queue/prepare/print', async (req: fastify.Request, reply: fastify.Reply) => {
     const queueId: any = req.body.queueId;
     const topic = req.body.topic;
     const printSmallQueue = req.body.printSmallQueue || 'N';
 
     if (queueId && topic) {
       try {
-
         const rs: any = await queueModel.getPrintInfo(db, queueId);
 
         if (rs[0].length) {

@@ -771,9 +771,11 @@ export class QueueModel {
 
 
   getPrintInfo(db: knex, queueId: any) {
+    console.log(queueId);
+
     const sql = `
     select q.hn, q.vn, q.queue_id, q.queue_interview, q.queue_number, q.queue_running, q.date_serv, q.time_serv,
-    sp.service_point_name, sp.local_code, q.date_create, ps.first_name, ps.last_name,ps.namepttype,
+    sp.service_point_name, sp.local_code, q.date_create, ps.first_name, ps.last_name,
     (select hosname from q4u_system limit 1) as hosname,
     (select hoscode from q4u_system limit 1) as hosid,
     (
@@ -786,6 +788,8 @@ export class QueueModel {
     left join q4u_priorities as p on p.priority_id=q.priority_id
     where q.queue_id=?
     `;
+    console.log(sql);
+
     return db.raw(sql, [queueId, queueId]);
   }
 

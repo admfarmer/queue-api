@@ -8,7 +8,7 @@ export class HiModel {
 
   getPatientInfo(db: knex, cid: any) {
     return db('pt as p')
-      .select('p.hn', 'p.pttype', 'p.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate')
+      .select('p.hn', 'p.pttype', 't.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate')
       .innerJoin('pttype as t', 'p.pttype', 't.pttype')
       .where('pop_id', cid).limit(1);
   }

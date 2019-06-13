@@ -14,8 +14,9 @@ export class HiModel {
   }
 
   getPatientInfoWithHN(db: knex, hn: any) {
-    return db('pt')
-      .select('hn', 'fname as first_name', 'pname as title', 'male as sex', 'lname as last_name', 'brthdate as birthdate')
+    return db('pt as p')
+      .select('p.hn', 'p.pttype', 't.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate')
+      .innerJoin('pttype as t', 'p.pttype', 't.pttype')
       .where('hn', hn).limit(1);
   }
 

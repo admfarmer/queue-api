@@ -6,12 +6,16 @@ import * as moment from 'moment';
 
 import * as HttpStatus from 'http-status-codes';
 import { QueueModel } from '../models/queue';
+import { HiModel } from '../models/his/hi';
+
 var QRCode = require('qrcode');
 
 const queueModel = new QueueModel();
+const hiModel = new HiModel();
 
 const router = (fastify, { }, next) => {
 
+  var dbHIS: knex = fastify.dbHIS;
   var db: knex = fastify.db;
 
   fastify.get('/queue', async (req: fastify.Request, reply: fastify.Reply) => {
@@ -105,12 +109,16 @@ const router = (fastify, { }, next) => {
           const localCode: any = info.local_code;
           const qrcode = `${hosid}#${process.env.Q4U_NOTIFY_TOKEN}#${hn}#${localCode}#${queueNumber}#${queueWithoutPrefix}#${dateServ}#${timeServ}#${servicePointName}#${priorityName}`;
 
+          const pt: any = await hiModel.getPatientInfoWithHN(dbHIS, hn);
+          let namepttype = pt[0].namepttype;
+
           var data: any = {
             "printSmallQueue": printSmallQueue,
             "hn": hn,
             "firstName": firstName,
             "lastName": lastName,
             "qrcode": qrcode,
+            "namepttype": namepttype,
             "hosname": hosname,
             "queueNumber": queueNumber,
             "servicePointName": servicePointName,

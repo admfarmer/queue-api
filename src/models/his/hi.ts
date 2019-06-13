@@ -7,8 +7,9 @@ export class HiModel {
   }
 
   getPatientInfo(db: knex, cid: any) {
-    return db('pt')
-      .select('hn', 'fname as first_name', 'pname as title', 'male as sex', 'lname as last_name', 'brthdate as birthdate')
+    return db('pt as p')
+      .select('p.hn', 'p.pttype', 'p.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate')
+      .innerJoin('pttype as t', 'p.pttype', 't.pttype')
       .where('pop_id', cid).limit(1);
   }
 
@@ -194,6 +195,11 @@ export class HiModel {
       .where('hn', hn).andWhere('vstdttm', vstdttm)
       .orderBy('vn', 'DESC')
       .limit(1);
+  }
+
+  async showOvst(db: knex, hn: any, dateServ: any, cln: any) {
+    let data = await db.raw(`select hn, vn, pttype, vstdttm, cln, ovstost FROM ovst where hn = '${hn}' and date(vstdttm) = '${dateServ}' and cln = '${cln}' and ovstost = '0'`);
+    return data[0];
   }
 
   saveOvst(db: knex, datas: any) {

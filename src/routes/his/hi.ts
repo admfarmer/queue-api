@@ -20,7 +20,7 @@ const router = (fastify, { }, next) => {
     fastify.post('/register', async (req: fastify.Request, reply: fastify.Reply) => {
 
         const info = req.body;
-        console.log(info);
+        // console.log(info);
 
         const hn = info.hn;
         const dateServ = info.dateServ;
@@ -52,8 +52,11 @@ const router = (fastify, { }, next) => {
         let ovstOne: any;
         let table: any;
 
+
+        let _vn = await hiOvstModel.showOvst(dbHIS, hn, dateServ, cln);
+        // console.log(_vn[0]);
         try {
-            if (req.body) {
+            if (!_vn[0]) {
                 let datas = {
                     hn: hn,
                     vstdttm: moment(Date()).format('YYYY-MM-DD HH:mm:ss'),
@@ -80,12 +83,12 @@ const router = (fastify, { }, next) => {
                     smoke: '0',
                     an: '0',
                     rcptno: '0',
-                    register: '0',
+                    register: '99',
                     waist_cm: '0'
                 }
 
                 ovst = await hiOvstModel.saveOvst(dbHIS, datas);
-                console.log(ovst);
+                // console.log(ovst);
                 // ovstInfo = await hiOvstModel.getOvstInfo(dbHIS, hn, dateServ);
 
                 vn = ovst[0];
@@ -125,12 +128,12 @@ const router = (fastify, { }, next) => {
                     }
                     let show: any;
                     let getShow = await hiOvstModel.getShow(dbHIS, table);
-                    console.log(getShow[0]);
+                    // console.log(getShow[0]);
                     let item = getShow[0]
-                    console.log(item[0]);
+                    // console.log(item[0]);
 
                     if (item[0]) {
-                        console.log('N');
+                        // console.log('N');
                         show = 'N'
                     } else {
                         show = 'Y'
@@ -144,12 +147,13 @@ const router = (fastify, { }, next) => {
                 }
                 reply.code(HttpStatus.OK).send({ ovst: ovst, ovstOne: ovstOne })
             } else {
-                reply.code(HttpStatus.OK).send({ info: 'ไม่พบข้อมูล' })
+                reply.code(HttpStatus.OK).send({ info: 'NO' })
             }
         } catch (error) {
             console.log(error);
             reply.code(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
         }
+
     });
 
     next();

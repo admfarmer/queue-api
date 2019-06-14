@@ -196,6 +196,7 @@ export class QueueModel {
       .where('q.mark_pending', 'N')
       .where('q.is_completed', 'N')
       .whereNot('q.is_cancel', 'Y')
+      .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc')
       .groupBy('q.queue_id')
       .limit(limit)
@@ -308,6 +309,7 @@ export class QueueModel {
     return sql.where('q.mark_pending', 'N')
       .where('q.date_serv', dateServ)
       .whereNot('q.is_cancel', 'Y')
+      .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc')
       .groupBy('q.queue_id')
       .limit(limit)
@@ -345,6 +347,7 @@ export class QueueModel {
       .where('q.is_completed', 'N')
       .whereNot('q.is_cancel', 'Y')
       .whereNot('q.mark_pending', 'Y')
+      .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc')
       .groupBy('q.queue_id')
       .limit(limit)
@@ -635,8 +638,7 @@ export class QueueModel {
       .whereNot('q.is_cancel', 'Y')
       .groupByRaw('q.service_point_id, q.date_serv, q.queue_number')
       .orderBy('pr.priority_prefix', 'desc')
-      .orderBy('q.queue_id', 'asc')
-      ;
+      .orderBy('q.queue_id', 'asc');
 
   }
 

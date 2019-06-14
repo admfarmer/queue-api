@@ -613,8 +613,8 @@ export class QueueModel {
       .where('q.mark_pending', 'Y')
       .whereNot('q.is_cancel', 'Y')
       .groupByRaw('q.service_point_id, q.date_serv, q.queue_number')
-      .orderBy('q.queue_id', 'asc')
-      .orderBy('pr.priority_prefix', 'desc');
+      .orderBy('pr.priority_prefix', 'desc')
+      .orderBy('q.queue_id', 'asc');
   }
 
   getPendingByDepartment(db: knex, dateServ: any, departmentId: any) {
@@ -634,8 +634,9 @@ export class QueueModel {
       .where('q.mark_pending', 'Y')
       .whereNot('q.is_cancel', 'Y')
       .groupByRaw('q.service_point_id, q.date_serv, q.queue_number')
+      .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc')
-      .orderBy('pr.priority_prefix', 'desc');
+      ;
 
   }
 

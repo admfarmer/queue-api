@@ -196,7 +196,7 @@ export class QueueModel {
       .where('q.mark_pending', 'N')
       .where('q.is_completed', 'N')
       .whereNot('q.is_cancel', 'Y')
-      .orderBy('pr.priority_prefix', 'desc')
+      // .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc')
       .groupBy('q.queue_id')
       .limit(limit)
@@ -309,7 +309,7 @@ export class QueueModel {
     return sql.where('q.mark_pending', 'N')
       .where('q.date_serv', dateServ)
       .whereNot('q.is_cancel', 'Y')
-      .orderBy('pr.priority_prefix', 'desc')
+      // .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc')
       .groupBy('q.queue_id')
       .limit(limit)
@@ -347,7 +347,7 @@ export class QueueModel {
       .where('q.is_completed', 'N')
       .whereNot('q.is_cancel', 'Y')
       .whereNot('q.mark_pending', 'Y')
-      .orderBy('pr.priority_prefix', 'desc')
+      // .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc')
       .groupBy('q.queue_id')
       .limit(limit)
@@ -424,7 +424,7 @@ export class QueueModel {
       .whereNot('q.mark_pending', 'Y')
       .whereNot('q.is_cancel', 'Y')
       .groupByRaw('qd.date_serv, qd.service_point_id, qd.room_id')
-      .orderBy('q.date_update', 'desc');
+      .orderBy('qd.update_date', 'desc');
   }
 
   getWorkingGroup(db: knex, dateServ: any, servicePointId: any) {
@@ -616,7 +616,7 @@ export class QueueModel {
       .where('q.mark_pending', 'Y')
       .whereNot('q.is_cancel', 'Y')
       .groupByRaw('q.service_point_id, q.date_serv, q.queue_number')
-      .orderBy('pr.priority_prefix', 'desc')
+      // .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc');
   }
 
@@ -637,7 +637,7 @@ export class QueueModel {
       .where('q.mark_pending', 'Y')
       .whereNot('q.is_cancel', 'Y')
       .groupByRaw('q.service_point_id, q.date_serv, q.queue_number')
-      .orderBy('pr.priority_prefix', 'desc')
+      // .orderBy('pr.priority_prefix', 'desc')
       .orderBy('q.queue_id', 'asc');
 
   }

@@ -23,6 +23,19 @@ const router = (fastify, { }, next) => {
 
   })
 
+  fastify.get('/select/:departmentId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+    const departmentId: any = req.params.departmentId;
+
+    try {
+      const rs: any = await departmentModel.select(db, departmentId);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs })
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+
+  })
+
   fastify.post('/', { preHandler: [fastify.authenticate, fastify.verifyAdmin] }, async (req: fastify.Request, reply: fastify.Reply) => {
     const departmentName = req.body.departmentName;
 

@@ -973,8 +973,10 @@ const router = (fastify, { }, next) => {
       queueIds.push(queueId)
 
       const rsQueue: any = await queueModel.getResponseQueueInfo(db, queueIds);
-      if (rsQueue[0].length) {
-        departmentId = rsQueue[0][0].department_id;
+      // console.log(rsQueue);
+      if (rsQueue) {
+        departmentId = rsQueue[0].department_id;
+        // console.log(departmentId);
       }
 
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
@@ -1004,6 +1006,7 @@ const router = (fastify, { }, next) => {
       }
 
       // publish mqtt
+
       const servicePointTopic = process.env.SERVICE_POINT_TOPIC + '/' + servicePointId;
       const groupTopic = process.env.GROUP_TOPIC + '/' + servicePointId;
       const departmentTopic = process.env.DEPARTMENT_TOPIC + '/' + departmentId;

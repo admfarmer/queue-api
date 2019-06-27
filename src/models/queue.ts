@@ -459,7 +459,7 @@ export class QueueModel {
       .innerJoin('q4u_priorities as pr', 'pr.priority_id', 'q.priority_id')
       .innerJoin('q4u_service_rooms as r', 'r.room_id', 'q.room_id')
       .innerJoin('q4u_service_points as sp', 'sp.service_point_id', 'q.service_point_id')
-      .leftJoin('q4u_queue_detail as qd', 'qd.queue_id', 'q.queue_id')
+      .innerJoin('q4u_queue_detail as qd', 'qd.queue_id', 'q.queue_id')
       .where('q.date_serv', dateServ)
       .where('sp.department_id', departmentId)
       // .where('q.is_completed', 'Y')

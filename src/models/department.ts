@@ -7,9 +7,6 @@ export class DepartmentModel {
   list(db: knex) {
     return db(this.tableName).orderBy('department_name');
   }
-  select(db: knex, departmentId: any) {
-    return db(this.tableName).where('department_id', departmentId);
-  }
 
   save(db: knex, data: any) {
     return db(this.tableName).insert(data);

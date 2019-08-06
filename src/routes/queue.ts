@@ -347,61 +347,72 @@ const router = (fastify, { }, next) => {
               const usePriorityQueueRunning = rsPointPrefix[0].priority_queue_running || 'N';
 
               await queueModel.savePatient(db, hn, title, firstName, lastName, birthDate, sex);
-              var queueNumber = 0;
-              var queueInterview = 0;
+              let queueNumber = 0;
+              let queueInterview = 0;
 
-              var rs1: any;
+              const useHISQueue = process.env.USE_HIS_QUEUE || 'N';
+              let _queueRunning = 0;
+              let strQueueNumber: string = null;
 
-              if (usePriorityQueueRunning === 'Y') {
-                rs1 = await queueModel.checkServicePointQueueNumber(db, servicePointId, dateServ, priorityId);
+              if (useHISQueue === 'Y') {
+                const rsQueue = await hisModel.getHISQueue(dbHIS, hn, dateServ);
+                if (rsQueue.length) {
+                  const queue = rsQueue[0].queue;
+                  strQueueNumber = queue;
+                } else {
+                  strQueueNumber = '000';
+                }
               } else {
-                rs1 = await queueModel.checkServicePointQueueNumber(db, servicePointId, dateServ);
+                let rs1: any;
+
+                if (usePriorityQueueRunning === 'Y') {
+                  rs1 = await queueModel.checkServicePointQueueNumber(db, servicePointId, dateServ, priorityId);
+                } else {
+                  rs1 = await queueModel.checkServicePointQueueNumber(db, servicePointId, dateServ);
+                }
+
+                if (rs1.length) {
+                  queueNumber = rs1[0]['current_queue'] + 1;
+                  usePriorityQueueRunning === 'Y'
+                    ? await queueModel.updateServicePointQueueNumber(db, servicePointId, dateServ, priorityId)
+                    : await queueModel.updateServicePointQueueNumber(db, servicePointId, dateServ);
+                } else {
+                  queueNumber = 1;
+                  usePriorityQueueRunning === 'Y'
+                    ? await queueModel.createServicePointQueueNumber(db, servicePointId, dateServ, priorityId)
+                    : await queueModel.createServicePointQueueNumber(db, servicePointId, dateServ);
+                }
+
+                // queue interview
+                let rs2 = await queueModel.checkServicePointQueueNumber(db, 999, dateServ);
+
+                if (rs2.length) {
+                  queueInterview = rs2[0]['current_queue'] + 1;
+                  await queueModel.updateServicePointQueueNumber(db, 999, dateServ);
+                } else {
+                  queueInterview = 1;
+                  await queueModel.createServicePointQueueNumber(db, 999, dateServ);
+                }
+
+                _queueRunning = queueNumber;
+
+                const queueDigit = +process.env.QUEUE_DIGIT || 3;
+                let _queueNumber = null;
+
+                if (process.env.ZERO_PADDING === 'Y') {
+                  _queueNumber = padStart(queueNumber.toString(), queueDigit, '0');
+                } else {
+                  _queueNumber = queueNumber.toString();
+                }
+
+                if (process.env.USE_PRIORITY_PREFIX === 'Y') {
+                  strQueueNumber = `${prefixPoint}${prefixPriority} ${_queueNumber}`;
+                } else {
+                  strQueueNumber = usePriorityQueueRunning === 'Y'
+                    ? `${prefixPoint}${prefixPriority} ${_queueNumber}`
+                    : `${prefixPoint} ${_queueNumber}`;
+                }
               }
-
-              if (rs1.length) {
-                queueNumber = rs1[0]['current_queue'] + 1;
-                usePriorityQueueRunning === 'Y'
-                  ? await queueModel.updateServicePointQueueNumber(db, servicePointId, dateServ, priorityId)
-                  : await queueModel.updateServicePointQueueNumber(db, servicePointId, dateServ);
-              } else {
-                queueNumber = 1;
-                usePriorityQueueRunning === 'Y'
-                  ? await queueModel.createServicePointQueueNumber(db, servicePointId, dateServ, priorityId)
-                  : await queueModel.createServicePointQueueNumber(db, servicePointId, dateServ);
-              }
-
-              // queue interview
-              var rs2 = await queueModel.checkServicePointQueueNumber(db, 999, dateServ);
-
-              if (rs2.length) {
-                queueInterview = rs2[0]['current_queue'] + 1;
-                await queueModel.updateServicePointQueueNumber(db, 999, dateServ);
-              } else {
-                queueInterview = 1;
-                await queueModel.createServicePointQueueNumber(db, 999, dateServ);
-              }
-
-              const _queueRunning = queueNumber;
-
-              const queueDigit = +process.env.QUEUE_DIGIT || 3;
-              var _queueNumber = null;
-
-              if (process.env.ZERO_PADDING === 'Y') {
-                _queueNumber = padStart(queueNumber.toString(), queueDigit, '0');
-              } else {
-                _queueNumber = queueNumber.toString();
-              }
-
-              var strQueueNumber: string = null;
-
-              if (process.env.USE_PRIORITY_PREFIX === 'Y') {
-                strQueueNumber = `${prefixPoint}-${prefixPriority}-${_queueNumber}`;
-              } else {
-                strQueueNumber = usePriorityQueueRunning === 'Y'
-                  ? `${prefixPoint}${prefixPriority}-${_queueNumber}`
-                  : `${prefixPoint}-${_queueNumber}`;
-              }
-
               const dateCreate = moment().format('YYYY-MM-DD HH:mm:ss');
 
               const qData: any = {};
@@ -445,50 +456,52 @@ const router = (fastify, { }, next) => {
           .send({
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             message: 'ไม่พบข้อมูล'
-          })
+          });
       }
     } else {
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .send({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: 'ไม่ HN'
-        })
+        });
     }
-
-  })
+  });
 
   fastify.get('/waiting/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const servicePointId = req.params.servicePointId;
     const limit = +req.query.limit || 20;
     const offset = +req.query.offset || 0;
+    const sort = req.query.sort;
+    const query = req.query.query || '';
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
 
-      const rs: any = await queueModel.getWaitingList(db, dateServ, servicePointId, limit, offset);
-      const rsTotal: any = await queueModel.getWaitingListTotal(db, dateServ, servicePointId);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs, total: rsTotal[0].total })
+      const rs: any = await queueModel.getWaitingList(db, dateServ, servicePointId, limit, offset, sort, query);
+      const rsTotal: any = await queueModel.getWaitingListTotal(db, dateServ, servicePointId, query);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs, total: rsTotal[0].total });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.post('/waiting/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const servicePointId = req.params.servicePointId;
-    const query = req.body.query;
+    const query = req.body.query || '';
+    const prioityId = req.body.prioityId || '';
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
-      const rs: any = await queueModel.getWaitingListQuery(db, dateServ, servicePointId, query);
+      const rs: any = await queueModel.getWaitingListQuery(db, dateServ, servicePointId, query, prioityId);
       reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.get('/waiting-group/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -552,13 +565,14 @@ const router = (fastify, { }, next) => {
     const departmentId = req.params.departmentId;
     const limit = +req.query.limit || 20;
     const offset = +req.query.offset || 0;
+    const sort = req.query.sort;
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
 
-      const rs: any = await queueModel.getQueueByDepartmentId(db, dateServ, departmentId, limit, offset);
+      const rs: any = await queueModel.getQueueByDepartmentId(db, dateServ, departmentId, limit, offset, sort);
       const rsTotal: any = await queueModel.getQueueByDepartmentIdTotal(db, dateServ, departmentId);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs, total: rsTotal[0].total })
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs, total: rsTotal[0].total });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
@@ -588,7 +602,7 @@ const router = (fastify, { }, next) => {
     const departmentId = req.params.departmentId;
     const limit = +req.query.limit || 20;
     const offset = +req.query.offset || 0;
-    const query = req.query.query;
+    const query = req.query.query || '';
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
@@ -605,17 +619,18 @@ const router = (fastify, { }, next) => {
   fastify.get('/working/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const servicePointId = req.params.servicePointId;
+    const query = req.query.query || '';
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
 
-      const rs: any = await queueModel.getWorking(db, dateServ, servicePointId);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs })
+      const rs: any = await queueModel.getWorking(db, dateServ, servicePointId, query);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.get('/working-group/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -677,12 +692,14 @@ const router = (fastify, { }, next) => {
   fastify.get('/working/history/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const servicePointId = req.params.servicePointId;
+    const query = req.query.query || '';
+    const prioityId = req.query.prioityId || '';
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
 
-      const rs: any = await queueModel.getWorkingHistory(db, dateServ, servicePointId);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs })
+      const rs: any = await queueModel.getWorkingHistory(db, dateServ, servicePointId, query, prioityId);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
@@ -692,17 +709,20 @@ const router = (fastify, { }, next) => {
   fastify.get('/pending/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const servicePointId = req.params.servicePointId;
+    const query = req.query.query || '';
+    const prioityId = req.query.prioityId || '';
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');
 
-      const rs: any = await queueModel.getPending(db, dateServ, servicePointId);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs })
+      const rs: any = await queueModel.getPending(db, dateServ, servicePointId, query, prioityId);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
   })
+
   //Ubonket10 
   fastify.get('/create/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -745,7 +765,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.post('/pending', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -755,6 +775,7 @@ const router = (fastify, { }, next) => {
     const pendigOldQueue = req.body.pendigOldQueue || null;
 
     try {
+      await queueModel.markCompleted(db, queueId);
       await queueModel.markPending(db, queueId, servicePointId);
       // get queue info
       const rsInfo: any = await queueModel.getDuplicatedQueueInfo(db, queueId);
@@ -774,12 +795,12 @@ const router = (fastify, { }, next) => {
         const useOldQueue: any = pendigOldQueue ? pendigOldQueue : rsServicePoint[0].use_old_queue || 'N';
 
         if (useOldQueue === 'Y') {
-          var queueNumber = 0;
-          var newQueueId = null;
-          var queueInterview = 0;
+          let queueNumber = 0;
+          let newQueueId = null;
+          let queueInterview = 0;
 
-          var rs1 = await queueModel.checkServicePointQueueNumber(db, servicePointId, dateServ);
-          var rs2 = await queueModel.checkServicePointQueueNumber(db, 999, dateServ);
+          const rs1 = await queueModel.checkServicePointQueueNumber(db, servicePointId, dateServ);
+          const rs2 = await queueModel.checkServicePointQueueNumber(db, 999, dateServ);
 
           if (rs1.length) {
             queueNumber = rs1[0]['current_queue'] + 1;
@@ -832,12 +853,12 @@ const router = (fastify, { }, next) => {
           //   strQueueNumber = `${prefixPoint}-${_queueNumber}`;
           // }
         } else {
-          var queueNumber = 0;
-          var strQueueNumber = null;
-          var newQueueId = null;
-          var queueInterview = 0;
+          let queueNumber = 0;
+          let strQueueNumber = null;
+          let newQueueId = null;
+          let queueInterview = 0;
 
-          var rs1: any;
+          let rs1: any;
 
           if (usePriorityQueueRunning === 'Y') {
             rs1 = await queueModel.checkServicePointQueueNumber(db, servicePointId, dateServ, priorityId);
@@ -973,10 +994,8 @@ const router = (fastify, { }, next) => {
       queueIds.push(queueId)
 
       const rsQueue: any = await queueModel.getResponseQueueInfo(db, queueIds);
-      // console.log(rsQueue);
       if (rsQueue) {
         departmentId = rsQueue[0].department_id;
-        // console.log(departmentId);
       }
 
       if (process.env.ENABLE_Q4U.toUpperCase() === 'Y') {
@@ -1006,7 +1025,6 @@ const router = (fastify, { }, next) => {
       }
 
       // publish mqtt
-
       const servicePointTopic = process.env.SERVICE_POINT_TOPIC + '/' + servicePointId;
       const groupTopic = process.env.GROUP_TOPIC + '/' + servicePointId;
       const departmentTopic = process.env.DEPARTMENT_TOPIC + '/' + departmentId;
@@ -1017,8 +1035,9 @@ const router = (fastify, { }, next) => {
         roomNumber: roomNumber,
         servicePointId: servicePointId,
         departmentId: departmentId,
-        isInterview: isInterview
-      }
+        isInterview: isInterview,
+        roomId: roomId
+      };
 
       fastify.mqttClient.publish(globalTopic, 'update visit', { qos: 0, retain: false });
       fastify.mqttClient.publish(servicePointTopic, JSON.stringify(payload), { qos: 0, retain: false });
@@ -1031,7 +1050,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.post('/caller-groups', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -1125,7 +1144,8 @@ const router = (fastify, { }, next) => {
       const payload = {
         queueNumber: queueNumber,
         roomNumber: roomNumber,
-        servicePointId: servicePointId
+        servicePointId: servicePointId,
+        roomId: roomId
       }
       // console.log(payload);
 
@@ -1139,7 +1159,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.post('/caller-group/:queueId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -1222,8 +1242,9 @@ const router = (fastify, { }, next) => {
       const payload = {
         queueNumber: [queueNumber],
         roomNumber: roomNumber,
-        servicePointId: servicePointId
-      }
+        servicePointId: servicePointId,
+        roomId: roomId
+      };
 
       fastify.mqttClient.publish(globalTopic, 'update visit', { qos: 0, retain: false });
       fastify.mqttClient.publish(groupTopic, JSON.stringify(payload), { qos: 0, retain: false });
@@ -1234,7 +1255,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.post('/caller/department/:queueId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -1309,8 +1330,9 @@ const router = (fastify, { }, next) => {
         roomNumber: roomNumber,
         servicePointId: servicePointId,
         departmentId: departmentId,
-        isInterview: isInterview
-      }
+        isInterview: isInterview,
+        roomId: roomId
+      };
 
       fastify.mqttClient.publish(globalTopic, 'update visit', { qos: 0, retain: false });
       fastify.mqttClient.publish(servicePointTopic, JSON.stringify(payload), { qos: 0, retain: false });
@@ -1322,7 +1344,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.post('/change-room', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -1356,7 +1378,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.post('/change-room-group', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -1364,7 +1386,7 @@ const router = (fastify, { }, next) => {
     const roomId = req.body.roomId;
     const roomNumber = req.body.roomNumber;
     const queueNumber = req.body.queueNumber;
-    const queueRunning = req.body.queueRunning
+    const queueRunning = req.body.queueRunning;
     const servicePointId = req.body.servicePointId;
 
     const dateServ = moment().format('YYYY-MM-DD');
@@ -1400,7 +1422,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.get('/current-list', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -1412,7 +1434,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   //Ubobket10
   fastify.post('/his-create', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
@@ -1597,7 +1619,7 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
   fastify.get('/service-points', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
@@ -1608,18 +1630,39 @@ const router = (fastify, { }, next) => {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
 
-  fastify.get('/sound/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
-    const servicePointId = req.params.servicePointId;
+  fastify.get('/sound/service-point', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+    const servicePointId = req.query.servicePointId;
     try {
       const rs: any = await servicePointModel.getSound(db, servicePointId);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs })
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
-  })
+  });
+
+  fastify.get('/sound/service-room', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+    const servicePointId = req.query.servicePointId;
+    try {
+      const rs: any = await servicePointModel.getSoundList(db, servicePointId);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  });
+  fastify.get('/sound/service-room-department', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+    const departmentId = req.query.departmentId;
+    try {
+      const rs: any = await servicePointModel.getSoundListDepartment(db, departmentId);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  });
 
   fastify.get('/working/runnumber/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 

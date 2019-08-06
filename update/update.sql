@@ -27,3 +27,12 @@ ALTER TABLE `queue`.`q4u_service_points` ADD COLUMN sound_speed decimal(3,2) NUL
 
 -- #2019-05-28
 ALTER TABLE q4u_users MODIFY COLUMN user_type enum('ADMIN','MEMBER','KIOSK');
+
+-- #2019-07-05
+ALTER TABLE `q4u_priorities` ADD COLUMN `priority_color` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `priority_prefix`;
+ALTER TABLE `q4u_priorities` ADD COLUMN `priority_order` int(11) NULL DEFAULT 1 AFTER `priority_color`;
+ALTER TABLE `q4u_priorities` DROP COLUMN `prority_color`;
+ALTER TABLE `q4u_service_points` MODIFY COLUMN `sound_speed` decimal(3, 2) NULL DEFAULT NULL COMMENT 'ความเร็วเสียงเรียก' AFTER `sound_id`;
+ALTER TABLE `q4u_service_rooms` ADD COLUMN `sound_id` int(11) NULL DEFAULT NULL AFTER `room_id`;
+ALTER TABLE `q4u_service_rooms` DROP PRIMARY KEY;
+ALTER TABLE `q4u_service_rooms` ADD PRIMARY KEY (`room_id`) USING BTREE;

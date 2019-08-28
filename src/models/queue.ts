@@ -637,6 +637,7 @@ export class QueueModel {
       .where('q.service_point_id', servicePointId)
       // .whereNull('q.room_id')
       .where('q.is_completed', 'N')
+      .where('q.is_cancel', 'N')
       // .whereNot('q.mark_pending', 'Y')
       // .groupByRaw('qd.date_serv, qd.service_point_id')
       .limit(5)

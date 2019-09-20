@@ -997,6 +997,7 @@ export class QueueModel {
       .orderBy('queue_running', 'ASC')
       .limit(limit);
   }
+
   //Ubonket10 
   getCancel(db: knex, dateServ: any, servicePointId: any) {
     return db('q4u_queue as q')
@@ -1010,6 +1011,8 @@ export class QueueModel {
       .where('q.date_serv', dateServ);
     // .whereNull('q.room_id');
   }
+
+  //Ubonket10 
   noCancel(db: knex, queueId) {
     return db('q4u_queue')
       .where('queue_id', queueId)

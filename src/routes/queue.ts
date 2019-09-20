@@ -1673,11 +1673,59 @@ const router = (fastify, { }, next) => {
 
       const rs: any = await queueModel.getWorkingRunNumber(db, dateServ, servicePointId);
       reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs })
+
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  });
+
+  fastify.get('/next-queue/service-point', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+
+    const servicePointId = +req.query.servicePointId;
+    const dateServ: any = moment().format('YYYY-MM-DD');
+    const limit = +req.query.limit || 5;
+    try {
+      const rs: any = await queueModel.getNextQueue(db, servicePointId, dateServ, limit);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  });
+
+  //Ubonket10 
+  fastify.get('/cancel/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+
+    const servicePointId = req.params.servicePointId;
+    console.log(servicePointId);
+
+
+    try {
+      const dateServ: any = moment().format('YYYY-MM-DD');
+
+      const rs: any = await queueModel.getCancel(db, dateServ, servicePointId);
+      console.log(rs);
+
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs })
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
     }
   })
+
+  fastify.get('/nocancel/:queueId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+
+    const queueId = req.params.queueId;
+
+    try {
+      await queueModel.noCancel(db, queueId);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK })
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  });
 
   next();
 

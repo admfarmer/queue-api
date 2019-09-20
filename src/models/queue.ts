@@ -437,7 +437,7 @@ export class QueueModel {
 
   getWorking(db: knex, dateServ: any, servicePointId: any, query: any) {
     const _query = `%${query}%`;
-    return db('q4u_queue_detail as qd')
+    var sql = db('q4u_queue_detail as qd')
       .select('qd.service_point_id', 'q.queue_interview', 'qd.date_serv as queue_date', 'qd.last_queue', 'qd.room_id',
         'q.queue_number', 'q.hn', 'q.vn', 'qd.queue_id', 'q.date_serv', 'q.time_serv', 'qd.update_date', 'p.title', 'p.first_name', 'p.last_name',
         'p.birthdate', 'pr.priority_name', 'pr.priority_id', 'pr.priority_color',
@@ -448,17 +448,23 @@ export class QueueModel {
       .innerJoin('q4u_service_rooms as r', 'r.room_id', 'qd.room_id')
       .innerJoin('q4u_service_points as sp', 'sp.service_point_id', 'q.service_point_id')
       .where('qd.date_serv', dateServ)
-      .where('qd.service_point_id', servicePointId)
-      .where((w) => {
+      .where('qd.service_point_id', servicePointId);
+
+    if (query) {
+      sql.where((w) => {
         w.orWhere('q.hn', 'like', _query)
           .orWhere('p.first_name', 'like', _query)
           .orWhere('p.last_name', 'like', _query)
           .orWhereRaw(`REPLACE(q.queue_number,' ','') like '${_query}'`);
-      })
-      .whereNot('q.mark_pending', 'Y')
+      });
+    }
+
+    sql.whereNot('q.mark_pending', 'Y')
       .whereNot('q.is_cancel', 'Y')
       .groupByRaw('qd.date_serv, qd.service_point_id, qd.room_id')
       .orderBy('qd.update_date', 'desc');
+
+    return sql;
   }
 
   getWorkingGroup(db: knex, dateServ: any, servicePointId: any) {
@@ -954,7 +960,7 @@ export class QueueModel {
 
   getVisitHistoryTotal(db: knex, dateServe: any, servicePointId, query) {
 
-    const _query = `%${query}%`
+    const _query = `%${query}%`;
     let sql = db('q4u_queue as q')
       .count('*').as('total')
       .join('q4u_person as p', 'p.hn', 'q.hn')
@@ -970,15 +976,44 @@ export class QueueModel {
         w.orWhere('p.last_name', 'like', _query)
         w.orWhere('q.hn', 'like', _query)
         w.orWhere('q.queue_number', 'like', _query)
-      })
+      });
       const _arrQuery = query.split(' ');
       if (_arrQuery.length == 2) {
         sql.where((w) => {
           w.orWhere('p.first_name', 'like', `%${_arrQuery[0]}%`)
           w.orWhere('p.last_name', 'like', `%${_arrQuery[1]}%`)
-        })
+        });
       }
     }
     return sql;
   }
+
+  getNextQueue(db: knex, servicePointId: number, dateServ, limit: number = 5) {
+    return db('q4u_queue')
+      .whereNull('room_id')
+      .where('service_point_id', servicePointId)
+      .where('date_serv', dateServ)
+      .where('is_cancel', 'N')
+      .orderBy('queue_running', 'ASC')
+      .limit(limit);
+  }
+  //Ubonket10 
+  getCancel(db: knex, dateServ: any, servicePointId: any) {
+    return db('q4u_queue as q')
+      .select('q.queue_id', 'q.hn', 'q.vn', 'q.service_point_id', 'q.priority_id', 'q.queue_number',
+        'q.room_id', 'q.date_serv', 'q.time_serv', 'p.title', 'p.first_name',
+        'p.last_name', 'p.birthdate', 'pr.priority_name', 'q.is_interview')
+      .innerJoin('q4u_person as p', 'p.hn', 'q.hn')
+      .innerJoin('q4u_priorities as pr', 'pr.priority_id', 'q.priority_id')
+      .where('q.service_point_id', servicePointId)
+      .where('q.is_cancel', 'Y')
+      .where('q.date_serv', dateServ);
+    // .whereNull('q.room_id');
+  }
+  noCancel(db: knex, queueId) {
+    return db('q4u_queue')
+      .where('queue_id', queueId)
+      .update({ is_cancel: 'N' });
+  }
+
 }

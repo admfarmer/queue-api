@@ -202,6 +202,7 @@ app.register(require('./routes/sounds'), { prefix: '/v1/sounds', logger: true })
 app.register(require('./routes/kiosk'), { prefix: '/v1/kiosk', logger: true });
 
 app.register(require('./routes/his/hi'), { prefix: '/v1/ovst', logger: true });
+app.register(require('./routes/his/alertlab'), { prefix: '/v1/alertlab', logger: true });
 
 app.get('/', async (req: fastify.Request, reply: fastify.Reply) => {
   reply.code(200).send({ message: 'Welcome to Q4U API services!', version: '3.0 build 20190417-1' })

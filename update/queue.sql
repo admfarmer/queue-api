@@ -70,7 +70,8 @@ CREATE TABLE `q4u_priorities` (
   `priority_id` int(3) NOT NULL AUTO_INCREMENT,
   `priority_name` varchar(50) DEFAULT NULL,
   `priority_prefix` char(1) DEFAULT NULL,
-  `prority_color` varchar(100) DEFAULT NULL,
+  `priority_color` varchar(100) DEFAULT NULL,
+  `priority_order` int(11) DEFAULT NULL,
   PRIMARY KEY (`priority_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
@@ -300,6 +301,7 @@ CREATE TABLE `q4u_service_rooms` (
   `room_number` int(2) NOT NULL COMMENT 'หมายเลขห้องตรวจ',
   `room_name` varchar(50) DEFAULT NULL COMMENT 'ชื่อห้องตรวจ',
   `room_id` int(6) NOT NULL AUTO_INCREMENT,
+  `sound_id` int(11),
   PRIMARY KEY (`service_point_id`,`room_number`) USING BTREE,
   UNIQUE KEY `service_rooms_un` (`room_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;

@@ -127,6 +127,9 @@ const router = (fastify, { }, next) => {
                         ldrug: '0'
                     }
                     let show: any;
+
+                    // ----------- แฟ้มรายวัน -------- //
+
                     let getShow = await hiOvstModel.getShow(dbHIS, table);
                     // console.log(getShow[0]);
                     let item = getShow[0]
@@ -144,7 +147,26 @@ const router = (fastify, { }, next) => {
                     }
                     ovstOne = await hiOvstModel.saveOvstOn(dbHIS, datas, table);
                     // console.log(table, datas)
+
+                    // ----------- แฟ้มนัด ---------  //
+
+                    let getOapp = await hiOvstModel.getOapp(dbHIS, hn, dateServ);
+                    getOapp.forEach(async (v: any) => {
+                        v.clinic
+                        if (v.clinic = 70100) {
+                            let getInserLab = await hiOvstModel.getInsertLab(dbHIS, hn, dateServ);
+                            if (getInserLab[0]) {
+                                let getUpdateOapp = await hiOvstModel.getUpdateOapp(dbHIS, hn, dateServ);
+                            }
+                        } else if (v.clinic = 80100) {
+                            let getInserXray = await hiOvstModel.getInsertXray(dbHIS, hn, dateServ);
+                            if (getInserXray[0]) {
+                                let getUpdateOapp = await hiOvstModel.getUpdateOapp(dbHIS, hn, dateServ);
+                            }
+                        }
+                    });
                 }
+
                 reply.code(HttpStatus.OK).send({ ovst: ovst, ovstOne: ovstOne })
             } else {
                 reply.code(HttpStatus.OK).send({ info: 'NO' })

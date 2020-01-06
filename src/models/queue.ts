@@ -651,6 +651,8 @@ export class QueueModel {
   }
 
   getPending(db: knex, dateServ: any, servicePointId: any, query: any = '', prioityId: any = '') {
+    console.log(servicePointId);
+
     const _query = `%${query}%`;
     const sql = db('q4u_queue as q')
       .select('q.service_point_id', 'q.pending_to_service_point_id', 'q.date_serv as queue_date', 'q.room_id',
@@ -1038,4 +1040,28 @@ export class QueueModel {
       .where('queue_id', queueId)
       .update({ is_cancel: 'N' });
   }
+
+  getWorkingInterview(db: knex, dateServ: any, servicePointId: any) {
+    return db('q4u_queue as q')
+      .select('q.service_point_id', 'q.date_serv as queue_date', 'q.room_id',
+        'q.queue_number', 'q.hn', 'q.vn', 'q.queue_id', 'q.queue_interview', 'q.date_serv', 'q.time_serv', 'q.date_update', 'p.title', 'p.first_name', 'p.last_name',
+        'p.birthdate', 'pr.priority_name', 'pr.priority_color',
+        'sp.service_point_name')
+      // .innerJoin('q4u_queue as q', 'q.queue_id', 'qd.queue_id')
+      .innerJoin('q4u_person as p', 'p.hn', 'q.hn')
+      .innerJoin('q4u_priorities as pr', 'pr.priority_id', 'q.priority_id')
+      // .innerJoin('q4u_service_rooms as r', 'r.room_id', 'q.room_id')
+      .innerJoin('q4u_service_points as sp', 'sp.service_point_id', 'q.service_point_id')
+      .where('q.date_serv', dateServ)
+      .where('q.service_point_id', servicePointId)
+      // .whereNull('q.room_id')
+      .where('q.is_completed', 'N')
+      .where('q.is_cancel', 'N')
+      .where('q.mark_pending', 'Y')
+      // .whereNot('q.mark_pending', 'Y')
+      // .groupByRaw('qd.date_serv, qd.service_point_id')
+      .limit(5)
+      .orderBy('q.date_update', 'ase');
+  }
+
 }

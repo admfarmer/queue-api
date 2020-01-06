@@ -1,16 +1,16 @@
 # config table queue
 DB_HOST=localhost
-DB_PORT=3310
+DB_PORT=3388
 DB_NAME=queue
 DB_USER=root
-DB_PASSWORD=212224236
+DB_PASSWORD=123456789
 
 # config table HIS
 DBHIS_HOST=localhost
-DBHIS_PORT=3310
+DBHIS_PORT=3388
 DBHIS_NAME=hi
 DBHIS_USER=root
-DBHIS_PASSWORD=212224236
+DBHIS_PASSWORD=123456789
 
 # key เข้ารหัส
 SECRET_KEY=1234567890
@@ -24,8 +24,8 @@ MAX_CONNECTION_PER_MINUTE=5000
 ENABLE_Q4U=N
 
 #config เชื่อมต่อ H4U
-Q4U_NOTIFY_TOPIC=xxxxxxxxxxxx
-Q4U_NOTIFY_TOKEN=xxxxxxxxxxxx
+Q4U_NOTIFY_TOPIC=xxxxxxxxxxxxxx
+Q4U_NOTIFY_TOKEN=xxxxxxxxxxxxxx
 Q4U_NOTIFY_URL=http://mqtt.h4u.moph.go.th/v1/queue/update
 
 ###############################################################
@@ -35,25 +35,38 @@ DBHIS_TYPE=mysql
 # HIS_TYPE เช่น hi, hosxp, homec, universal, mbase, ezhosp, dhos
 HIS_TYPE=hi
 
-QUEUE_DIGIT=3
+# config แสดงจำนวนคิวกีหลัก 
+QUEUE_DIGIT=4
+
+# Y = แสดงประเภทผู้รับบริการ , N = ไม่แสดงประเภทผู้รับบริการว 
 USE_PRIORITY_PREFIX=N
+
+# Y = ใช้ประเภทผู้รับบริการไปรันคิวคลินิก , N = ไม่ใช้ประเภทผู้รับบริการไปรันคิวคลินิก 
 USE_PRIORITY_QUEUE_RUNNING=N
-ZERO_PADDING=Y
-# Y = อ่านเลขคิวที่ละตัว (11 อ่านว่า หนึ่งหนึ่ง), N = อ่านเลขคิวเป็นคำพูด (11 อ่านว่า สิบเอ็ด)
-SPEAK_SINGLE=N
+
+# Y = แสดง 0 หน้าเลขคัว , N = ไม่แสดง 0 หน้าเลขคัว 
+ZERO_PADDING=N
 
 # config For Hi
+# Y = เสียงเรียกคิวคลินิก , N = ไม่ออกเสียงเรียกคิวคลินิก 
 SPEAK_SERVICE_POINT=Y
-USE_HIS_WAITING=Y
+
+# Y = แสดงคิวรอเรียกเข้าห้องตรวจ , N = แสดงประวัติคิวเรียกเข้าห้องตรวจ , I = แสดงพักคิวเรียกเข้าห้องตรวจ 
+USE_HIS_WAITING=I
+
+# Y = แสดงคิวแบบใหม่เฉพราะที่เรียกคิว , N = แสดงแบบเก่า แสดงรายละเอียดเรียกคิว 
 USE_HIS_DMH=N
+
+# Y = อ่านเลขคิวที่ละตัว (11 อ่านว่า หนึ่งหนึ่ง), N = อ่านเลขคิวเป็นคำพูด (11 อ่านว่า สิบเอ็ด)
+SPEAK_SINGLE=Y
 
 # config For hosxp
 USE_HIS_QUEUE=N
 
 # for docker container
-INTERNAL_NOTIFY_SERVER=127.0.0.1
+INTERNAL_NOTIFY_SERVER=localhost
 # for web client
-LOCAL_NOTIFY_SERVER=127.0.0.1
+LOCAL_NOTIFY_SERVER=localhost
 # same user/password for internal and local notify server
 LOCAL_NOTIFY_USER=q4u
 LOCAL_NOTIFY_PASSWORD=##q4u##
@@ -66,4 +79,4 @@ GROUP_TOPIC=queue/group
 
 #config port และ ip เชื่อมต่อ api
 HTTP_PORT=3002
-HTTP_ADDRESS=127.0.0.1
+HTTP_ADDRESS=0.0.0.0

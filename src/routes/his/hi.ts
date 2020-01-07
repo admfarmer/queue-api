@@ -20,7 +20,7 @@ const router = (fastify, { }, next) => {
     fastify.post('/register', async (req: fastify.Request, reply: fastify.Reply) => {
 
         const info = req.body;
-        // console.log(info);
+        console.log(info);
 
         const hn = info.hn;
         const dateServ = info.dateServ;
@@ -151,16 +151,23 @@ const router = (fastify, { }, next) => {
                     // ----------- แฟ้มนัด ---------  //
 
                     let getOapp = await hiOvstModel.getOapp(dbHIS, hn, dateServ);
-                    getOapp.forEach(async (v: any) => {
-                        v.clinic
-                        if (v.clinic = 70100) {
+                    console.log(getOapp[0]);
+                    let insertIdLab: any = null;
+                    let insertIdXray: any = null;
+                    getOapp[0].forEach(async (v: any) => {
+                        console.log(v.clinic);
+                        if (v.clinic == '70100') {
                             let getInserLab = await hiOvstModel.getInsertLab(dbHIS, hn, dateServ);
-                            if (getInserLab[0]) {
+                            console.log(getInserLab);
+                            insertIdLab = getInserLab.insertId;
+                            if (!insertIdLab) {
                                 let getUpdateOapp = await hiOvstModel.getUpdateOapp(dbHIS, hn, dateServ);
                             }
-                        } else if (v.clinic = 80100) {
+                        }
+                        if (v.clinic == '80100') {
                             let getInserXray = await hiOvstModel.getInsertXray(dbHIS, hn, dateServ);
-                            if (getInserXray[0]) {
+                            insertIdXray = getInserXray.insertId;
+                            if (!insertIdXray) {
                                 let getUpdateOapp = await hiOvstModel.getUpdateOapp(dbHIS, hn, dateServ);
                             }
                         }

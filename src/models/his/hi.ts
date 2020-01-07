@@ -276,21 +276,22 @@ export class HiModel {
     if(substr(cln,1,1) in (1,2,4,7,8),concat(substr(cln,1,1),'0100'),cln) as clinic
     from oapp as a 
     where a.hn = ${hn} and a.fudate = '${dateServ}'
+    GROUP BY clinic
     `);
     return data;
   }
   async getUpdateOapp(db: knex, hn: any, dateServ: any) {
     let data = await db.raw(`
-    update oapp set fuok=1 where a.hn = ${hn} and a.fudate = '${dateServ}'
+    update oapp as a set fuok=1 where a.hn = ${hn} and a.fudate = '${dateServ}'
     `);
     return data;
   }
 
   async getInsertLab(db: knex, hn: any, dateServ: any) {
     let data = await db.raw(`
-    insert into lbbk (labcode,vn,request_by,vstdttm,hn,an,pttype) 
+    insert into lbbk (labcode,vn,requestby,vstdttm,hn,an,pttype) 
     select 
-    substr(cln,2,3) as labcode,
+    substr(a.cln,2,3) as labcode,
     o.vn as vn,
     'Q4U' as request_by,
     o.vstdttm,
@@ -317,7 +318,7 @@ export class HiModel {
     date(o.vstdttm) as vstdate,
     date_format(o.vstdttm,'%h%i') as vsttime,
     date_format(now(),'%h%i') as rqttime,
-    substr(cln,2,4) as xrycode
+    substr(a.cln,2,4) as xrycode
     from 
     oapp as a 
     inner join ovst as o on o.hn=a.hn and date(o.vstdttm)=a.fudate

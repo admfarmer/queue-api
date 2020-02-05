@@ -1456,6 +1456,7 @@ const router = (fastify, { }, next) => {
   fastify.post('/his-create', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const visit = req.body.hn;
+    const _priorityId = req.body.priorityId;
     const servicePointId = req.body.servicePointId;
     try {
       // const rsInfo: any = await hisModel.getVisitOne(dbHIS, visit);
@@ -1463,7 +1464,7 @@ const router = (fastify, { }, next) => {
 
 
       // reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rsInfo})
-      var priorityId = '1';
+      var priorityId = _priorityId || '1';
 
       const hn = rsInfo[0].hn;
       const vn = rsInfo[0].vn;
@@ -1473,6 +1474,8 @@ const router = (fastify, { }, next) => {
 
       try {
         if (priorityId && servicePointId) {
+          console.log(priorityId, ":::", servicePointId);
+
 
           const rsPriorityPrefix: any = await priorityModel.getPrefix(db, priorityId);
           const prefixPriority: any = rsPriorityPrefix[0].priority_prefix || '0';

@@ -295,6 +295,8 @@ export class HiModel {
     o.vn as vn,
     'Q4U' as request_by,
     o.vstdttm,
+    date_format(o.vstdttm,'%Y-%m-%d') as senddate,
+    date_format(o.vstdttm,'%h%i') as sendtime,
     o.hn,
     0 as an,
     o.pttype 

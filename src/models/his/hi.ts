@@ -289,7 +289,7 @@ export class HiModel {
 
   async getInsertLab(db: knex, hn: any, dateServ: any) {
     let data = await db.raw(`
-    insert into lbbk (labcode,vn,requestby,vstdttm,hn,an,pttype) 
+    insert into lbbk (labcode,vn,requestby,vstdttm,senddate,sendtime,hn,an,pttype) 
     select 
     substr(a.cln,2,3) as labcode,
     o.vn as vn,

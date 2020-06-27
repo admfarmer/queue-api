@@ -1765,7 +1765,7 @@ const router = (fastify, { }, next) => {
   fastify.get('/working/interview/:servicePointId', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
 
     const servicePointId = req.params.servicePointId;
-    console.log('xxxx');
+    // console.log('xxxx');
 
     try {
       const dateServ: any = moment().format('YYYY-MM-DD');

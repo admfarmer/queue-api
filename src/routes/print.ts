@@ -108,7 +108,7 @@ const router = (fastify, { }, next) => {
           const localCode: any = info.local_code;
           const qrcode = `${hosid}#${process.env.Q4U_NOTIFY_TOKEN}#${hn}#${localCode}#${queueNumber}#${queueWithoutPrefix}#${dateServ}#${timeServ}#${servicePointName}#${priorityName}`;
 
-          const pt: any = await hiModel.getPatientInfoWithHN(dbHIS, hn);
+          const pt: any = await hiModel.getPatientInfoPttype(dbHIS, hn);
           let namepttype = pt[0].namepttype;
 
           var data: any = {

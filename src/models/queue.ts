@@ -1064,4 +1064,8 @@ export class QueueModel {
       .orderBy('q.date_update', 'DESC');
   }
 
+  getTokenNHSO(db: knex) {
+    return db('q4u_nhso')
+      .limit(1);
+  }
 }

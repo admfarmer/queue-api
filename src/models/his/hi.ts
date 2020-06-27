@@ -13,12 +13,25 @@ export class HiModel {
       .where('pop_id', cid).limit(1);
   }
 
+  getCurrentVisit(db: knex, hn) {
+    return [];
+  }
+
   getPatientInfoWithHN(db: knex, hn: any) {
     return db('pt as p')
-      .select('p.hn', 'p.pttype', 't.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate')
+      .select('p.hn', 'p.pttype', 't.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate', 'cid')
       .innerJoin('pttype as t', 'p.pttype', 't.pttype')
       .where('hn', hn).limit(1);
   }
+
+  //Ubonket10 
+  getPatientInfoPttype(db: knex, hn: any) {
+    return db('ovst as i')
+      .select('i.hn', 'i.pttype', 't.namepttype')
+      .innerJoin('pttype as t', 'i.pttype', 't.pttype')
+      .where('i.hn', hn).orderBy('vstdttm', 'DESC').limit(1);
+  }
+
 
   getVisitList(db: knex, dateServ: any, localCode: any[], vn: any[], servicePointCode: any, query: any, limit: number = 20, offset: number = 0) {
     var sql = db('ovst as o')

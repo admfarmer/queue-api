@@ -228,6 +228,9 @@ export class HiModel {
     return db('insure as i')
       .select('p.pttype', 'p.namepttype', db.raw('date(i.datein) as datein'), db.raw('date(i.dateexp) as dateexp'), 'i.card_id')
       .innerJoin('pttype as p', 'p.pttype', 'i.pttype')
+      .innerJoin('pt',function() {
+        this.on('pt.hn', '=', 'i.hn').andOn('pt.pttype', '=', 'i.pttype')
+      })
       .where('i.hn', hn)
       .orderBy('i.id', 'DESC')
       .limit(1);

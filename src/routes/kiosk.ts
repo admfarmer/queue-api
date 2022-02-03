@@ -53,7 +53,7 @@ const router = (fastify, { }, next) => {
       const token = req.body.token;
       if (token) {
         const kioskId = req.body.kioskId;
-        const decoded = fastify.jwt.verify(token);
+        // const decoded = fastify.jwt.verify(token);
         const cid = req.body.cid;
         const title = req.body.title;
         const fname = req.body.fname;
@@ -70,6 +70,9 @@ const router = (fastify, { }, next) => {
           ok: true,
           results: obj
         }
+        // console.log(topic);
+        // console.log(payload);
+        
         fastify.mqttClient.publish(topic, JSON.stringify(payload), { qos: 0, retain: false });
         reply.status(HttpStatus.OK).send({ cid: cid, title: title, fname: fname, lname: lname, birthDate: birthDate })
 
@@ -89,7 +92,7 @@ const router = (fastify, { }, next) => {
       const token = req.body.token;
       const kioskId = req.body.kioskId;
       if (token) {
-        const decoded = fastify.jwt.verify(token);
+        // const decoded = fastify.jwt.verify(token);
         console.log('remove');
 
         const topic = `kiosk/${kioskId}`;

@@ -128,6 +128,7 @@ const router = (fastify, { }, next) => {
           if (visit.length) {
             isVisit = true;
           }
+          const hometel = data.hometel;
           const hn = data.hn;
           const firstName = data.first_name;
           const lastName = data.last_name;
@@ -146,6 +147,7 @@ const router = (fastify, { }, next) => {
             engBirthDate: moment(birthDate).format('YYYY-MM-DD'),
             title: title,
             sex: sex,
+            hometel: hometel,
             isVisit: isVisit
           };
 
@@ -253,6 +255,24 @@ const router = (fastify, { }, next) => {
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: error.message })
     }
   });
+
+  fastify.post('/saveKiosPttype', async (req: fastify.Request, reply: fastify.Reply) => {
+    const data = req.body.data;
+
+    try {
+      console.log('insert');
+      const rs: any = await hisModel.saveKios_pttype(data);
+
+        // console.log(payload);
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
+
+
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+
+  })
 
   next();
 

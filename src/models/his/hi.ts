@@ -8,7 +8,7 @@ export class HiModel {
 
   getPatientInfo(db: knex, cid: any) {
     return db('pt as p')
-      .select('p.hn', 'p.pttype', 't.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate')
+      .select('p.hn', 'p.pttype', 't.namepttype', 'p.fname as first_name', 'p.pname as title', 'p.male as sex', 'p.lname as last_name', 'p.brthdate as birthdate', 'p.hometel as hometel')
       .innerJoin('pttype as t', 'p.pttype', 't.pttype')
       .where('pop_id', cid).limit(1);
   }
@@ -347,6 +347,10 @@ export class HiModel {
     and a.fuok=0
     `);
     return data;
+  }
+
+  saveKios_pttype(db: knex, datas: any) {
+    return db('kios_pttype').insert(datas);
   }
 
 }

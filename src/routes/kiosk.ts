@@ -257,13 +257,13 @@ const router = (fastify, { }, next) => {
   });
 
   fastify.post('/saveKiosPttype', async (req: fastify.Request, reply: fastify.Reply) => {
-    const data = req.body.data;
+    const data = req.body;
 
     try {
       console.log('insert');
         const rs: any = await hisModel.saveKios_pttype(dbHIS,data);
 
-        console.log(rs);
+        // console.log(rs);
         reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });
 
 

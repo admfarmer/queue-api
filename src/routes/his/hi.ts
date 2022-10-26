@@ -88,7 +88,9 @@ const router = (fastify, { }, next) => {
                 }
 
                 ovst = await hiOvstModel.saveOvst(dbHIS, datas);
-                // console.log(ovst);
+                let update_pt = await hiOvstModel.update_pt(dbHIS, hn);
+
+                console.log(update_pt);
                 // ovstInfo = await hiOvstModel.getOvstInfo(dbHIS, hn, dateServ);
 
                 vn = ovst[0];

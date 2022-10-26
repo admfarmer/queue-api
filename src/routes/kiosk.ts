@@ -261,7 +261,7 @@ const router = (fastify, { }, next) => {
 
     try {
       console.log('insert');
-      const rs: any = await hisModel.saveKios_pttype(data);
+        const rs: any = await hisModel.saveKios_pttype(dbHIS,data);
 
         // console.log(payload);
         reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, results: rs });

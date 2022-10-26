@@ -349,6 +349,12 @@ export class HiModel {
     return data;
   }
 
+  async update_pt(db: knex, hn: any) {
+    let data = await db.raw(`UPDATE pt SET pt.ldate = DATE(NOW()) WHERE pt.hn = '${hn}'
+    `);
+    return data;
+  }
+
   async saveKios_pttype(db: knex, datas: any) {
     // console.log(datas);
     return await db('kios_pttype').insert(datas);

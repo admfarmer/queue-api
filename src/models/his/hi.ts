@@ -349,8 +349,9 @@ export class HiModel {
     return data;
   }
 
-  saveKios_pttype(db: knex, datas: any) {
-    return db('kios_pttype').insert(datas);
+  async saveKios_pttype(db: knex, datas: any) {
+    console.log(datas);
+    return await db('kios_pttype').insert(datas);
   }
 
 }

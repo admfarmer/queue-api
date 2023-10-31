@@ -444,14 +444,14 @@ const router = (fastify, { }, next) => {
 
               const queueId: any = await queueModel.createQueueInfo(db, qData);
 
-              // let infoVisitQueue = {
-              //   vn:qData.vn,
-              //   queue_id:queueId[0],
-              //   queue_number:qData.queueNumber,
+              let infoVisitQueue = {
+                vn:qData.vn,
+                queue_id:queueId[0],
+                queue_number:qData.queueNumber,
                 
-              // }
+              }
     
-              // const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
+              const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
     
               const topic = process.env.QUEUE_CENTER_TOPIC;
               const topicServicePoint = `${topic}/${servicePointId}`;

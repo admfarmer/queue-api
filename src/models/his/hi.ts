@@ -363,7 +363,7 @@ export class HiModel {
 
   async saveVisitQueueID(db: knex, datas: any) {
     // console.log(datas);
-    return await db('visitqueueid').insert(datas).whereNotIn('queue_id', datas.queue_id);
+    return await db('visitqueueid').insert(datas).where('queue_id','!=',datas.queue_id);
   }
 
 }

@@ -176,6 +176,7 @@ const router = (fastify, { }, next) => {
   fastify.post('/register', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
     const hn = req.body.hn;
     const vn = req.body.vn;
+    const vn1 = req.body.vn1;
     const localCode = req.body.clinicCode;
     const priorityId = req.body.priorityId;
     const dateServ = req.body.dateServ;
@@ -295,11 +296,13 @@ const router = (fastify, { }, next) => {
           const queueId: any = await queueModel.createQueueInfo(db, qData);
 
           let infoVisitQueue = {
-            vn:qData.vn1,
+            vn:vn1,
             queue_id:queueId[0],
             queue_number:qData.queueNumber,
             
           }
+          console.log('infoVisitQueue : ',infoVisitQueue);
+          
 
           if(qData.vn.substring(0,1) == "K"){
             const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
@@ -446,7 +449,7 @@ const router = (fastify, { }, next) => {
               const queueId: any = await queueModel.createQueueInfo(db, qData);
 
               let infoVisitQueue = {
-                vn:qData.vn1,
+                vn:vn,
                 queue_id:queueId[0],
                 queue_number:qData.queueNumber,
                 

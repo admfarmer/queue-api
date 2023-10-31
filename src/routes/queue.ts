@@ -295,16 +295,13 @@ const router = (fastify, { }, next) => {
           const queueId: any = await queueModel.createQueueInfo(db, qData);
 
           let infoVisitQueue = {
-            vn:qData.vn,
+            vn:qData.vn1,
             queue_id:queueId[0],
             queue_number:qData.queueNumber,
             
           }
 
-          // const selectVisitQueueID = await hisModel.selectVisitQueueID(dbHIS, infoVisitQueue);
-          // console.log(selectVisitQueueID);
-          
-          if(infoVisitQueue.vn.substring(0,1) == "K"){
+          if(qData.vn.substring(0,1) == "K"){
             const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
           }
 
@@ -449,12 +446,13 @@ const router = (fastify, { }, next) => {
               const queueId: any = await queueModel.createQueueInfo(db, qData);
 
               let infoVisitQueue = {
-                vn:qData.vn,
+                vn:qData.vn1,
                 queue_id:queueId[0],
                 queue_number:qData.queueNumber,
                 
               }
-              if(infoVisitQueue.vn.substring(0,1) == "K"){
+
+              if(qData.vn.substring(0,1) == "K"){
                 const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
               }
         

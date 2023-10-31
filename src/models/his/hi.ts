@@ -360,13 +360,12 @@ export class HiModel {
     return await db('kios_pttype').insert(datas);
   }
   async selectVisitQueueID(db: knex, datas: any) {
-    console.log(datas.queue_id);
-    return await db('visitqueueid').where('queue_id',+datas.queue_id);
+    // console.log(datas.queue_id);
+    return await db('visitqueueid').where('queue_id',datas.queue_id);
   }
 
-
   async saveVisitQueueID(db: knex, datas: any) {
-    console.log(datas);
+    // console.log(datas);
     return await db('visitqueueid').insert(datas);
   }
 

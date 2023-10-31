@@ -301,12 +301,10 @@ const router = (fastify, { }, next) => {
             
           }
 
-          const selectVisitQueueID = await hisModel.selectVisitQueueID(dbHIS, infoVisitQueue);
-          console.log(selectVisitQueueID);
+          // const selectVisitQueueID = await hisModel.selectVisitQueueID(dbHIS, infoVisitQueue);
+          // console.log(selectVisitQueueID);
           
-          if(selectVisitQueueID[0]){
-
-          }else{
+          if(infoVisitQueue.vn.substring(0,1) == "K"){
             const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
           }
 
@@ -456,13 +454,10 @@ const router = (fastify, { }, next) => {
                 queue_number:qData.queueNumber,
                 
               }
-              const selectVisitQueueID = await hisModel.selectVisitQueueID(dbHIS, infoVisitQueue);
-              if(selectVisitQueueID[0]){
-
-              }else{
+              if(infoVisitQueue.vn.substring(0,1) == "K"){
                 const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
               }
-    
+        
               const topic = process.env.QUEUE_CENTER_TOPIC;
               const topicServicePoint = `${topic}/${servicePointId}`;
 

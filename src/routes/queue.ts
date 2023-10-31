@@ -294,6 +294,16 @@ const router = (fastify, { }, next) => {
 
           const queueId: any = await queueModel.createQueueInfo(db, qData);
 
+          let infoVisitQueue = {
+            vn:qData.vn,
+            queue_id:queueId[0],
+            queue_number:qData.queueNumber,
+            
+          }
+
+          const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
+
+
           const topic = process.env.QUEUE_CENTER_TOPIC;
           const topicServicePoint = `${process.env.SERVICE_POINT_TOPIC}/${servicePointId}`;
           const topicDepartment = `${process.env.DEPARTMENT_TOPIC}/${departmentId}`;
@@ -434,6 +444,15 @@ const router = (fastify, { }, next) => {
 
               const queueId: any = await queueModel.createQueueInfo(db, qData);
 
+              let infoVisitQueue = {
+                vn:qData.vn,
+                queue_id:queueId[0],
+                queue_number:qData.queueNumber,
+                
+              }
+    
+              const visitQueueID = await hisModel.saveVisitQueueID(dbHIS, infoVisitQueue);
+    
               const topic = process.env.QUEUE_CENTER_TOPIC;
               const topicServicePoint = `${topic}/${servicePointId}`;
 

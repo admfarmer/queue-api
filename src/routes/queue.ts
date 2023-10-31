@@ -302,6 +302,8 @@ const router = (fastify, { }, next) => {
           }
 
           const selectVisitQueueID = await hisModel.selectVisitQueueID(dbHIS, infoVisitQueue);
+          console.log(selectVisitQueueID);
+          
           if(selectVisitQueueID[0]){
 
           }else{

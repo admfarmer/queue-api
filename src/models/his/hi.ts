@@ -382,6 +382,6 @@ export class HiModel {
     WHERE q.hn = ${hn} AND q.date_serv = '${dateServ}'
     ORDER BY q.queue_id DESC LIMIT 1
     `);
-    return data;
+    return data[0];
   }
 }

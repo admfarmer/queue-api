@@ -373,4 +373,14 @@ export class HiModel {
     // console.log(datas);
     return await db('insure').insert(datas);
   }  
+
+    async getQ4u_queue(db: knex, vn: any) {
+    let data = await db.raw(`
+    SELECT q.vn , q.queue_id ,q.queue_number ,p.priority_name as queue_priority
+    FROM q4u_queue as q
+    INNER JOIN q4u_priorities as p on p.priority_id = q.priority_id
+    WHERE q.vn = ${vn}
+    `);
+    return data;
+  }
 }

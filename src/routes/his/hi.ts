@@ -129,19 +129,6 @@ const router = (fastify, { }, next) => {
                         drxtime: '0',
                         ldrug: '0'
                     }
-                    let insure = {
-                        vn: vn,
-                        hn: hn,
-                        pop_id: pt[0].pop_id,
-                        card_id: pt[0].card_id,
-                        pttype: pttype,
-                        datein: pt[0].datein,
-                        dateexp: pt[0].dateexp,
-                        hospmain: pt[0].hospmain,
-                        hospsub: pt[0].hospsub,
-                        note: 'บันทึกข้อมูลโดย Kiosk Q4u frm',
-                        notedate: moment(Date()).format('YYYY-MM-DD')
-                    }
 
                     let show: any;
 
@@ -192,10 +179,33 @@ const router = (fastify, { }, next) => {
                     });
 
                     // ----------- แฟ้ม insure ---------  //
-                    console.log(insure);
-
+                    let insure = {
+                        vn: vn,
+                        hn: hn,
+                        pop_id: pt[0].pop_id,
+                        card_id: pt[0].card_id,
+                        pttype: pttype,
+                        datein: pt[0].datein,
+                        dateexp: pt[0].dateexp,
+                        hospmain: pt[0].hospmain,
+                        hospsub: pt[0].hospsub,
+                        note: 'บันทึกข้อมูลโดย Kiosk Q4u frm',
+                        notedate: moment(Date()).format('YYYY-MM-DD')
+                    }
+                    // console.log(insure);
                     let getInsure = await hiOvstModel.saveInsure(dbHIS, insure);
                     
+                    // ----------- แฟ้ม visitqueueid ---------  //
+
+                    let queue = await hiOvstModel.getQ4u_queue(db, vn);
+                    let dataQueue = {
+                        vn: vn,
+                        queue_id: queue[0].queue_id,
+                        queue_number: queue[0].queue_number,
+                        queue_priority: queue[0].queue_priority
+                    }
+                    let getInsertQueue = await hiOvstModel.saveVisitQueueID(dbHIS, dataQueue);
+
                 }
 
                 reply.code(HttpStatus.OK).send({ ovst: ovst, ovstOne: ovstOne })

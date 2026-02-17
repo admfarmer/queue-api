@@ -153,7 +153,7 @@ const router = (fastify, { }, next) => {
 
                     // ----------- แฟ้ม insure ---------  //
                     let insure = {
-                        vn: vn,
+                        vn: datas.vn,
                         hn: hn,
                         pop_id: pop_id,
                         card_id: '',
@@ -167,7 +167,7 @@ const router = (fastify, { }, next) => {
                     }
                     let getInsure = await hiOvstModel.saveInsure(dbHIS, insure);
                     console.log(getInsure[0]);
-                    
+
                     // ----------- แฟ้มนัด ---------  //
 
                     let getOapp = await hiOvstModel.getOapp(dbHIS, hn, dateServ);

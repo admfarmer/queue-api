@@ -197,7 +197,9 @@ const router = (fastify, { }, next) => {
                     
                     // ----------- แฟ้ม visitqueueid ---------  //
 
-                    let queue = await hiOvstModel.getQ4u_queue(db, vn);
+                    let queue = await hiOvstModel.getQ4u_queue(db, hn, dateServ);
+                    console.log(queue);
+
                     let dataQueue = {
                         vn: vn,
                         queue_id: queue[0].queue_id,

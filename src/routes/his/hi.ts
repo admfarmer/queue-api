@@ -129,6 +129,20 @@ const router = (fastify, { }, next) => {
                         drxtime: '0',
                         ldrug: '0'
                     }
+                    let insure = {
+                        vn: vn,
+                        hn: hn,
+                        pop_id: pop_id,
+                        card_id: '',
+                        pttype: pttype,
+                        datein: moment(Date()).format('YYYY-MM-DD'),
+                        dateexp: moment(Date()).format('YYYY-MM-DD'),
+                        hospmain: '10957',
+                        hospsup: '10957',
+                        note: 'บันทึกข้อมูลโดย Kiosk Q4u frm',
+                        notedate: moment(Date()).format('YYYY-MM-DD')
+                    }
+
                     let show: any;
 
                     // ----------- แฟ้มรายวัน -------- //
@@ -178,21 +192,10 @@ const router = (fastify, { }, next) => {
                     });
 
                     // ----------- แฟ้ม insure ---------  //
-                    let insure = {
-                        vn: ovst[0],
-                        hn: hn,
-                        pop_id: pop_id,
-                        card_id: '',
-                        pttype: pttype,
-                        datein: moment(Date()).format('YYYY-MM-DD'),
-                        dateexp: moment(Date()).format('YYYY-MM-DD'),
-                        hospmain: '10957',
-                        hospsup: '10957',
-                        note: 'บันทึกข้อมูลโดย Kiosk Q4u frm',
-                        notedate: moment(Date()).format('YYYY-MM-DD')
-                    }
-                    let getInsure = await hiOvstModel.saveInsure(dbHIS, insure);
                     console.log(insure);
+
+                    let getInsure = await hiOvstModel.saveInsure(dbHIS, insure);
+                    
                 }
 
                 reply.code(HttpStatus.OK).send({ ovst: ovst, ovstOne: ovstOne })

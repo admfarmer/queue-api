@@ -20,7 +20,7 @@ const router = (fastify, { }, next) => {
     fastify.post('/register', async (req: fastify.Request, reply: fastify.Reply) => {
 
         const info = req.body;
-        console.log(info);
+        // console.log(info);
 
         const hn = info.hn;
         const dateServ = info.dateServ;
@@ -91,7 +91,7 @@ const router = (fastify, { }, next) => {
                 ovst = await hiOvstModel.saveOvst(dbHIS, datas);
                 let update_pt = await hiOvstModel.update_pt(dbHIS, hn);
 
-                console.log(update_pt);
+                // console.log(update_pt);
                 // ovstInfo = await hiOvstModel.getOvstInfo(dbHIS, hn, dateServ);
 
                 vn = ovst[0];
@@ -156,14 +156,14 @@ const router = (fastify, { }, next) => {
                     // ----------- แฟ้มนัด ---------  //
 
                     let getOapp = await hiOvstModel.getOapp(dbHIS, hn, dateServ);
-                    console.log(getOapp[0]);
+                    // console.log(getOapp[0]);
                     let insertIdLab: any = null;
                     let insertIdXray: any = null;
                     getOapp[0].forEach(async (v: any) => {
-                        console.log(v.clinic);
+                        // console.log(v.clinic);
                         if (v.clinic == '70100') {
                             let getInserLab = await hiOvstModel.getInsertLab(dbHIS, hn, dateServ);
-                            console.log(getInserLab);
+                            // console.log(getInserLab);
                             insertIdLab = getInserLab.insertId;
                             if (!insertIdLab) {
                                 let getUpdateOapp = await hiOvstModel.getUpdateOapp(dbHIS, hn, dateServ);
@@ -198,7 +198,7 @@ const router = (fastify, { }, next) => {
                     // ----------- แฟ้ม visitqueueid ---------  //
 
                     let queue = await hiOvstModel.getQ4u_queue(db, hn, moment(Date()).format('YYYY-MM-DD'));
-                    console.log(queue[0]);
+                    // console.log(queue[0]);
 
                     let dataQueue = {
                         vn: vn,
@@ -206,7 +206,7 @@ const router = (fastify, { }, next) => {
                         queue_number: queue[0].queue_number,
                         queue_priority: queue[0].queue_priority
                     }
-                    console.log(dataQueue);
+                    // console.log(dataQueue);
           
                     let getInsertQueue = await hiOvstModel.saveVisitQueueID(dbHIS, dataQueue);
 

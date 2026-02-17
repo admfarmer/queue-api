@@ -42,6 +42,7 @@ const router = (fastify, { }, next) => {
         // console.log(pt);
 
         let pttype = pt[0].pttype;
+        let pop_id = pt[0].pop_id;
 
         let vn: any = null;
         let vsttime: any;
@@ -150,6 +151,23 @@ const router = (fastify, { }, next) => {
                     ovstOne = await hiOvstModel.saveOvstOn(dbHIS, datas, table);
                     // console.log(table, datas)
 
+                    // ----------- แฟ้ม insure ---------  //
+                    let insure = {
+                        vn: vn,
+                        hn: hn,
+                        pop_id: pop_id,
+                        card_id: '',
+                        pttype: pttype,
+                        datein: moment(Date()).format('YYYY-MM-DD'),
+                        dateexp: moment(Date()).format('YYYY-MM-DD'),
+                        hospmain: '10957',
+                        hospsup: '10957',
+                        note: 'บันทึกข้อมูลโดย Kiosk Q4u frm',
+                        notedate: moment(Date()).format('YYYY-MM-DD')
+                    }
+                    let getInsure = await hiOvstModel.saveInsure(dbHIS, insure);
+                    console.log(getInsure[0]);
+                    
                     // ----------- แฟ้มนัด ---------  //
 
                     let getOapp = await hiOvstModel.getOapp(dbHIS, hn, dateServ);

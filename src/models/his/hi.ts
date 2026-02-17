@@ -369,4 +369,8 @@ export class HiModel {
     return await db('visitqueueid').insert(datas);
   }
 
+  async saveInsure(db: knex, datas: any) {
+    // console.log(datas);
+    return await db('insure').insert(datas);
+  }  
 }

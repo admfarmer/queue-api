@@ -42,7 +42,7 @@ const router = (fastify, { }, next) => {
         // console.log(pt);
 
         let pttype = pt[0].pttype;
-        let pop_id = pt[0].card_id;
+        // let pop_id = pt[0].card_id;
 
         let vn: any = null;
         let vsttime: any;
@@ -132,13 +132,13 @@ const router = (fastify, { }, next) => {
                     let insure = {
                         vn: vn,
                         hn: hn,
-                        pop_id: pop_id,
-                        card_id: '',
+                        pop_id: pt[0].pop_id,
+                        card_id: pt[0].card_id,
                         pttype: pttype,
-                        datein: moment(Date()).format('YYYY-MM-DD'),
-                        dateexp: moment(Date()).format('YYYY-MM-DD'),
-                        hospmain: '10957',
-                        hospsub: '10957',
+                        datein: pt[0].datein,
+                        dateexp: pt[0].dateexp,
+                        hospmain: pt[0].hospmain,
+                        hospsub: pt[0].hospsub,
                         note: 'บันทึกข้อมูลโดย Kiosk Q4u frm',
                         notedate: moment(Date()).format('YYYY-MM-DD')
                     }

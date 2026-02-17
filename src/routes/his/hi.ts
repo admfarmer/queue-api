@@ -179,7 +179,7 @@ const router = (fastify, { }, next) => {
 
                     // ----------- แฟ้ม insure ---------  //
                     let insure = {
-                        vn: datas.vn,
+                        vn: ovst[0],
                         hn: hn,
                         pop_id: pop_id,
                         card_id: '',

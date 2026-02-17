@@ -165,8 +165,8 @@ const router = (fastify, { }, next) => {
                         note: 'บันทึกข้อมูลโดย Kiosk Q4u frm',
                         notedate: moment(Date()).format('YYYY-MM-DD')
                     }
-                    let getInsure = await hiOvstModel.saveInsure(dbHIS, insure);
-                    console.log(getInsure[0]);
+                    // let getInsure = await hiOvstModel.saveInsure(dbHIS, insure);
+                    console.log(insure);
 
                     // ----------- แฟ้มนัด ---------  //
 
